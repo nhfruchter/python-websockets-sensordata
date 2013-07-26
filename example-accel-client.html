@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0">
+    <title>Accelerometer Remote</title>
+	<style type="text/css" media="screen">
+		body { font: 1.5em sans-serif; padding: 1em }
+		#serverAddress, #serverAddress input { font-family: monospace; }
+		input#wsServer { border: none; background: #fff; padding: 5px; border-bottom: 1px dotted #aaa; }
+		#status { background: #DEF8F5; padding: 0.25em; font: 0.75em monospace; }
+		p#credits { font-size: 0.25em }
+	</style>
+	<script type="text/javascript" charset="utf-8">
+		var status;
+
+		var load = function() { 
+			statusDiv = document.getElementById('status');
+			server = document.getElementById('wsServer');
+			connectBtn = document.getElementById('connect');
+			server.value = window.location.host;
+			connectBtn.addEventListener('click', connect, false)
+		};
+		var connect = function() {
+			serverAddress = server.value;
+			statusDiv.innerhtml = "Connecting..."
+			ws = new WebSocket('ws://' + server.value);
+			window.addEventListener('deviceorientation', update, true)
+			
+		}
+		var update = function (ev) {
+            var orientation = {"orientation" : {
+                "alpha" : ev.alpha,
+                "beta"  : ev.beta,
+                "gamma" : ev.gamma
+            }};
+            statusDiv.innerHTML = "Alpha: " + ev.alpha + " <br /> Beta: " + ev.beta + " <br /> Gamma: " + ev.gamma;
+           	ws.send( JSON.stringify( orientation ) );
+        };
+        
+		window.addEventListener('DOMContentLoaded', load, false)
+	</script>
+
+</head>
+<body>
+	<p>Enter the WebSocket server's hostname and port below in the form hostname:port.</p>
+	<form accept-charset="utf-8" id="serverAddress">
+		<p>ws://<input type="text" id="wsServer" /></p>
+		<p><input type="button" value="Connect" id="connect"></p>
+	</form>
+	
+	<div id="status">Please connect to a server.</div>
+	<p id="credits">Adapted from <a href="https://github.com/trygve-lie/demos-html5-realtime/blob/master/src/www/remote_rotation/remote.html">demos-html5-realtime</a>.</p>
+</body>
+</html>
