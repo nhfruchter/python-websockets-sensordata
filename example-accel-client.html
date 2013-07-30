@@ -23,19 +23,29 @@
 		};
 		var connect = function() {
 			serverAddress = server.value;
-			statusDiv.innerhtml = "Connecting..."
-			ws = new WebSocket('ws://' + server.value);
-			window.addEventListener('deviceorientation', update, true)
+			statusDiv.innerhtml = "Connecting...";
+			try { 
+				ws = new WebSocket('ws://' + server.value);
+				ws.onerror = function(error) { 
+					statusDiv.innerhtml = "There was an error establishing the connection."; 
+					return;
+				}
+				window.addEventListener('deviceorientation', update, true);
+			} catch (e) { 
+				statusDiv.innerhtml = "The server you tried to connect to is unavailable.";
+			} 
 			
 		}
 		var update = function (ev) {
-            var orientation = {"orientation" : {
-                "alpha" : ev.alpha,
-                "beta"  : ev.beta,
-                "gamma" : ev.gamma
-            }};
-            statusDiv.innerHTML = "Alpha: " + ev.alpha + " <br /> Beta: " + ev.beta + " <br /> Gamma: " + ev.gamma;
-           	ws.send( JSON.stringify( orientation ) );
+			if (ws) {
+	            var orientation = {"orientation" : {
+	                "alpha" : ev.alpha,
+	                "beta"  : ev.beta,
+	                "gamma" : ev.gamma
+	            }};
+	            statusDiv.innerHTML = "Alpha: " + ev.alpha + " <br /> Beta: " + ev.beta + " <br /> Gamma: " + ev.gamma;
+	           	ws.send( JSON.stringify( orientation ) );
+			}
         };
         
 		window.addEventListener('DOMContentLoaded', load, false)

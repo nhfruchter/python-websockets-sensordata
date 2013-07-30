@@ -6,19 +6,19 @@ class SensorDataServer(pywsock.PyWSock):
 	(smartphone). Data is stored in sensorDataObject and an optional
 	callback is fired every time new data is loaded."""
 	
-	def __init__(self, sensorDataObject, callback=lambda:None):
+	def __init__(self, sensorDataObject, callback=lambda:None, precision=2):
 		self.object = sensorDataObject
 		self.callback = callback
+		self.precision = precision
 		
 	def process(self, data):
 		"""Processes incoming data and sets data in sensor class."""
 		position = json.loads(data)["orientation"]
-		precision = 2 # decimals
 		
 		# Right is positive
-		self.object.lrTilt  = round(float(position["gamma"]), precision)
+		self.object.lrTilt  = round(float(position["gamma"]), self.precision)
 		# Forward is positive
-		self.object.fbTilt = round(float(position["beta"]), precision)
+		self.object.fbTilt = round(float(position["beta"]), self.precision)
 		# Standard format (0 deg = North)
 		self.object.heading = type(position["alpha"]) is float and int(round(float(position["alpha"]))) or 0
 		
